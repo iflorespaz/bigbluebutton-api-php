@@ -50,18 +50,60 @@ use SimpleXMLElement;
  */
 class BigBlueButton
 {
-    protected $securitySecret;
-    protected $bbbServerBaseUrl;
+    private $securitySecret;
+  	private $bbbServerBaseUrl;
     protected $urlBuilder;
     protected $jSessionId;
 
-    public function __construct()
+    public function __construct($multipleTenant = FALSE, $securitySecret = '', $bbbServerBaseUrl = '')
     {
-        // Keeping backward compatibility with older deployed versions
-        $this->securitySecret   = (getenv('BBB_SECURITY_SALT') === false) ? getenv('BBB_SECRET') : $this->securitySecret = getenv('BBB_SECURITY_SALT');
-        $this->bbbServerBaseUrl = getenv('BBB_SERVER_BASE_URL');
-        $this->urlBuilder       = new UrlBuilder($this->securitySecret, $this->bbbServerBaseUrl);
+      if ($multipleTenant) {
+		$this->securitySecret = $securitySecret;
+		$this->bbbServerBaseUrl = $bbbServerBaseUrl;
+	  } else {
+		// Keeping backward compatibility with older deployed versions
+		$this->securitySecret   = (getenv('BBB_SECURITY_SALT') === false) ? getenv('BBB_SECRET') : $this->securitySecret = getenv('BBB_SECURITY_SALT');
+		$this->bbbServerBaseUrl = getenv('BBB_SERVER_BASE_URL');
+	  }
+
+      $this->urlBuilder       = new UrlBuilder($this->securitySecret, $this->bbbServerBaseUrl);
     }
+
+	/**
+	 * @param  $securitySecret
+	 * @return string
+	 * @throws \RuntimeException
+	 */
+    public function setSecuritySecret($securitySecret) {
+      $this->securitySecret = $securitySecret;
+	  return $this->securitySecret;
+	}
+
+	/**
+	 * Return BBB securitySecret
+	 * @return string
+	 */
+	public function getSecuritySecret() {
+	  return $this->securitySecret;
+	}
+
+	/**
+	 * @param  $bbbServerBaseUrl
+	 * @return string
+	 * @throws \RuntimeException
+	 */
+	public function setServerBaseUrl($bbbServerBaseUrl) {
+	  $this->bbbServerBaseUrl = $bbbServerBaseUrl;
+	  return $this->bbbServerBaseUrl;
+	}
+
+	/**
+	 * Return BBB bbbServerBaseUrl
+	 * @return string
+	 */
+	public function getServerBaseUrl() {
+	  return $this->bbbServerBaseUrl;
+	}
 
     /**
      * @return ApiVersionResponse
